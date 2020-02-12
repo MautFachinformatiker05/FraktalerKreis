@@ -32,7 +32,7 @@ public class Main2 extends Application implements Runnable {
 	double prev_angle;
 
 	public Main2() {
-		executor = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors()+1);
+		executor = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
 		startX = 0;
 		startY = 200;
 		length = 200;
@@ -149,11 +149,7 @@ public class Main2 extends Application implements Runnable {
 				temp.setEndY((modifier5.get()*startX*Math.sin(this_angle)+modifier6.get()*startY*Math.cos(this_angle)));
 				temp.setStrokeWidth(length/50);
 				//					root.getChildren().add(temp);
-				Platform.runLater(new Runnable() {
-					@Override public void run() {
-						root.getChildren().add(temp);    
-					}
-				});
+				Platform.runLater(new RunLater(temp));
 				//					drawrecursive(temp.getEndX(), temp.getEndY(), length*modifier.get(), this_angle);
 				Main2 rekursiv = new Main2(executor,temp.getEndX(), temp.getEndY(), length*modifier.get(), this_angle);
 				executor.execute(rekursiv);
@@ -162,7 +158,7 @@ public class Main2 extends Application implements Runnable {
 		}
 	}
 
-	BorderPane root = new BorderPane();
+	static BorderPane root = new BorderPane();
 	static private DoubleProperty angle = new SimpleDoubleProperty();
 	static private IntegerProperty branches = new SimpleIntegerProperty();
 	static private DoubleProperty modifier = new SimpleDoubleProperty();
