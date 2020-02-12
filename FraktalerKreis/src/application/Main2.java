@@ -5,6 +5,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadPoolExecutor;
 
 import javafx.application.Application;
+import javafx.application.Platform;
 import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.SimpleDoubleProperty;
@@ -21,23 +22,23 @@ import javafx.scene.shape.Line;
 
 
 public class Main2 extends Application implements Runnable {
-	
-	
+
+
 	ExecutorService executor;
 	ThreadPoolExecutor pool = (ThreadPoolExecutor) executor;
 	double startX;
 	double startY;
 	double length;
 	double prev_angle;
-	
+
 	public Main2() {
-		executor = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors()-1);
+		executor = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors()+1);
 		startX = 0;
 		startY = 200;
 		length = 200;
 		prev_angle = 0;
 	}
-	
+
 	public Main2(ExecutorService executor, double startX, double startY, double length, double prev_angle) {
 		this.executor = executor;
 		this.startX = startX;
@@ -45,7 +46,7 @@ public class Main2 extends Application implements Runnable {
 		this.length = length;
 		this.prev_angle = prev_angle;
 	}
-	
+
 	public void start(Stage primaryStage) {
 		try {
 			Scene scene = new Scene(root,800,800,false,SceneAntialiasing.BALANCED);
@@ -54,7 +55,7 @@ public class Main2 extends Application implements Runnable {
 			primaryStage.show();
 			root.setTranslateX(400);
 			root.setTranslateY(400);
-			
+
 			Stage newWindow = new Stage();	
 			VBox vbox1 = new VBox(5);
 			Scene scene2 = new Scene(vbox1,300,180);
@@ -86,7 +87,7 @@ public class Main2 extends Application implements Runnable {
 			Slider modifier5_slider = new Slider(0,2,1);
 			Slider modifier6_slider = new Slider(0,2,1);
 			vbox1.getChildren().addAll(angle_slider, branch_slider, modifier_slider, modifier2_slider, modifier3_slider, modifier4_slider, modifier5_slider, modifier6_slider);
-			
+
 			angle.bind(angle_slider.valueProperty());
 			branches.bind(branch_slider.valueProperty());
 			modifier.bind(modifier_slider.valueProperty());
@@ -95,7 +96,7 @@ public class Main2 extends Application implements Runnable {
 			modifier4.bind(modifier4_slider.valueProperty());
 			modifier5.bind(modifier5_slider.valueProperty());
 			modifier6.bind(modifier6_slider.valueProperty());
-			
+
 			addListenerToSlider(root, angle_slider);
 			addListenerToSlider(root, branch_slider);
 			addListenerToSlider(root, modifier_slider);
@@ -104,7 +105,7 @@ public class Main2 extends Application implements Runnable {
 			addListenerToSlider(root, modifier4_slider);
 			addListenerToSlider(root, modifier5_slider);
 			addListenerToSlider(root, modifier6_slider);
-			
+
 			newWindow.show();
 			executor = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
 			long old_time = System.currentTimeMillis();
@@ -112,6 +113,7 @@ public class Main2 extends Application implements Runnable {
 			executor.execute(rekursiv);
 			long new_time = System.currentTimeMillis();
 			System.out.println("Insgesamt wurden "+count+" Linien in "+(new_time-old_time)+" Millisekunden gezeichnet.");
+			count = 0;
 
 		} catch(Exception e) {
 			e.printStackTrace();
@@ -124,55 +126,52 @@ public class Main2 extends Application implements Runnable {
 		if (length<10)
 			return;
 		else
-		{
-			if (length==200)
+		{				
+			for(int i=2; i<=branches.get()+1;i++)
 			{
-				drawrecursive(0, 400, length*modifier.get(),0);		// überbleibsel alten Codes
-				return;
-			}
-			else
-			{	
-				for(int i=2; i<=branches.get()+1;i++)
+				double this_angle;
+				if (i==branches.get()+1 && i%2==0)		// middle branch
 				{
-					double this_angle;
-					if (i==branches.get()+1 && i%2==0)		// middle branch
-					{
-						this_angle = modifier2.get()*prev_angle;
-					}
-					else if(i%2==0)					// left branch
-					{
-						this_angle = (-(i/2) * angle.get()) + modifier2.get()*prev_angle;
-					}
-					else							// right branch
-					{
-						this_angle = ((i/2) * angle.get()) + modifier2.get()*prev_angle;
-					}
-					Line temp = new Line();
-					temp.setStartX(startX);
-					temp.setStartY(startY);
-					temp.setEndX((modifier3.get()*startX*Math.cos(this_angle)-modifier4.get()*startY*Math.sin(this_angle)));
-					temp.setEndY((modifier5.get()*startX*Math.sin(this_angle)+modifier6.get()*startY*Math.cos(this_angle)));
-					temp.setStrokeWidth(length/50);
-					root.getChildren().add(temp);
-//					drawrecursive(temp.getEndX(), temp.getEndY(), length*modifier.get(), this_angle);
-					Main2 rekursiv = new Main2(executor,temp.getEndX(), temp.getEndY(), length*modifier.get(), this_angle);
-					executor.execute(rekursiv);
+					this_angle = modifier2.get()*prev_angle;
 				}
-				return;
+				else if(i%2==0)					// left branch
+				{
+					this_angle = (-(i/2) * angle.get()) + modifier2.get()*prev_angle;
+				}
+				else							// right branch
+				{
+					this_angle = ((i/2) * angle.get()) + modifier2.get()*prev_angle;
+				}
+				Line temp = new Line();
+				temp.setStartX(startX);
+				temp.setStartY(startY);
+				temp.setEndX((modifier3.get()*startX*Math.cos(this_angle)-modifier4.get()*startY*Math.sin(this_angle)));
+				temp.setEndY((modifier5.get()*startX*Math.sin(this_angle)+modifier6.get()*startY*Math.cos(this_angle)));
+				temp.setStrokeWidth(length/50);
+				//					root.getChildren().add(temp);
+				Platform.runLater(new Runnable() {
+					@Override public void run() {
+						root.getChildren().add(temp);    
+					}
+				});
+				//					drawrecursive(temp.getEndX(), temp.getEndY(), length*modifier.get(), this_angle);
+				Main2 rekursiv = new Main2(executor,temp.getEndX(), temp.getEndY(), length*modifier.get(), this_angle);
+				executor.execute(rekursiv);
 			}
+			return;			
 		}
 	}
 
 	BorderPane root = new BorderPane();
-	private DoubleProperty angle = new SimpleDoubleProperty();
-	private IntegerProperty branches = new SimpleIntegerProperty();
-	private DoubleProperty modifier = new SimpleDoubleProperty();
-	private DoubleProperty modifier2 = new SimpleDoubleProperty();
-	private DoubleProperty modifier3 = new SimpleDoubleProperty();
-	private DoubleProperty modifier4 = new SimpleDoubleProperty();
-	private DoubleProperty modifier5 = new SimpleDoubleProperty();
-	private DoubleProperty modifier6 = new SimpleDoubleProperty();
-	int count = 0;
+	static private DoubleProperty angle = new SimpleDoubleProperty();
+	static private IntegerProperty branches = new SimpleIntegerProperty();
+	static private DoubleProperty modifier = new SimpleDoubleProperty();
+	static private DoubleProperty modifier2 = new SimpleDoubleProperty();
+	static private DoubleProperty modifier3 = new SimpleDoubleProperty();
+	static private DoubleProperty modifier4 = new SimpleDoubleProperty();
+	static private DoubleProperty modifier5 = new SimpleDoubleProperty();
+	static private DoubleProperty modifier6 = new SimpleDoubleProperty();
+	static int count = 0;
 
 	public void addListenerToSlider(BorderPane root, Slider sl) {
 		sl.valueProperty().addListener(new ChangeListener<Number>() {
@@ -184,20 +183,22 @@ public class Main2 extends Application implements Runnable {
 				executor.execute(rekursiv);
 				long new_time = System.currentTimeMillis();
 				System.out.println("Insgesamt wurden "+count+" Linien in "+(new_time-old_time)+" Millisekunden gezeichnet.");
+				count = 0;
+				System.out.println(root.getChildrenUnmodifiable().toString());	// DEBUG
 			}
 
 		});
 	}
-	
+
 	public static void main(String[] args) {
 		launch(args);
 	}
 
 	@Override
 	public void run() {
-		System.out.println(this.toString());
-		System.out.println(this.executor.toString());
+//		System.out.println(this.toString());
+//		System.out.println(this.executor.toString());
 		drawrecursive(startX, startY, length, prev_angle);
-		
+
 	}
 }
