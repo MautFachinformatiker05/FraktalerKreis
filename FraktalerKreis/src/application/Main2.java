@@ -170,7 +170,7 @@ public class Main2 extends Application implements Runnable {
 				{
 					this_angle = ((i/2) * angle.get()) + modifier2.get()*prev_angle;
 				}
-				Line temp = new Line();
+				Line temp = new Line(); 
 				temp.setStartX(startX);
 				temp.setStartY(startY);
 				temp.setEndX((modifier3.get()*startX*Math.cos(this_angle)-modifier4.get()*startY*Math.sin(this_angle)));
