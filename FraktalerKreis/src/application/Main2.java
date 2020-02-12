@@ -12,9 +12,12 @@ import javafx.beans.property.SimpleDoubleProperty;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
+import javafx.event.EventHandler;
 import javafx.stage.Stage;
+import javafx.stage.WindowEvent;
 import javafx.scene.Scene;
 import javafx.scene.SceneAntialiasing;
+import javafx.scene.control.ProgressBar;
 import javafx.scene.control.Slider;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.VBox;
@@ -44,7 +47,7 @@ public class Main2 extends Application implements Runnable {
 		this.startX = startX;
 		this.startY = startY;
 		this.length = length;
-		this.prev_angle = prev_angle;
+		this.prev_angle = prev_angle;	
 	}
 
 	public void start(Stage primaryStage) {
@@ -58,11 +61,28 @@ public class Main2 extends Application implements Runnable {
 
 			Stage newWindow = new Stage();	
 			VBox vbox1 = new VBox(5);
-			Scene scene2 = new Scene(vbox1,300,180);
+			Scene scene2 = new Scene(vbox1,300,200);
 			newWindow.setScene(scene2);
-			newWindow.setX(primaryStage.getX() + 700);
+			newWindow.setX(primaryStage.getX() + 805);
 			newWindow.setY(primaryStage.getY() + 100);
+			newWindow.setMaxHeight(240);
 
+			primaryStage.setOnCloseRequest(new EventHandler<WindowEvent>() {
+			    @Override
+			    public void handle(WindowEvent t) {
+			        Platform.exit();
+			        System.exit(0);
+			    }
+			});
+			
+			newWindow.setOnCloseRequest(new EventHandler<WindowEvent>() {
+			    @Override
+			    public void handle(WindowEvent t) {
+			        Platform.exit();
+			        System.exit(0);
+			    }
+			});
+			
 			angle.set(30);
 			branches.set(2);
 			modifier.set(0.66);
@@ -86,7 +106,10 @@ public class Main2 extends Application implements Runnable {
 			Slider modifier4_slider = new Slider(0,2,1);
 			Slider modifier5_slider = new Slider(0,2,1);
 			Slider modifier6_slider = new Slider(0,2,1);
-			vbox1.getChildren().addAll(angle_slider, branch_slider, modifier_slider, modifier2_slider, modifier3_slider, modifier4_slider, modifier5_slider, modifier6_slider);
+			ProgressBar progress = new ProgressBar();
+			progress.setPrefWidth(300);
+
+			vbox1.getChildren().addAll(angle_slider, branch_slider, modifier_slider, modifier2_slider, modifier3_slider, modifier4_slider, modifier5_slider, modifier6_slider, progress);
 
 			angle.bind(angle_slider.valueProperty());
 			branches.bind(branch_slider.valueProperty());
@@ -108,11 +131,8 @@ public class Main2 extends Application implements Runnable {
 
 			newWindow.show();
 			executor = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
-			long old_time = System.currentTimeMillis();
-			Main2 rekursiv = new Main2(executor,0, 200, 200, 0);
+			Main2 rekursiv = new Main2(executor,0, 400, 400, 0);
 			executor.execute(rekursiv);
-			long new_time = System.currentTimeMillis();
-			System.out.println("Insgesamt wurden "+count+" Linien in "+(new_time-old_time)+" Millisekunden gezeichnet.");
 			count = 0;
 
 		} catch(Exception e) {
@@ -174,13 +194,9 @@ public class Main2 extends Application implements Runnable {
 
 			public void changed(ObservableValue<? extends Number> ov,Number old_val, Number new_val) {
 				root.getChildren().clear();	// Löschen des vorherigen Kreises
-				long old_time = System.currentTimeMillis();
-				Main2 rekursiv = new Main2(executor,0, 200, 200, 0);
+				Main2 rekursiv = new Main2(executor,0, 400, 400, 0);
 				executor.execute(rekursiv);
-				long new_time = System.currentTimeMillis();
-				System.out.println("Insgesamt wurden "+count+" Linien in "+(new_time-old_time)+" Millisekunden gezeichnet.");
 				count = 0;
-				System.out.println(root.getChildrenUnmodifiable().toString());	// DEBUG
 			}
 
 		});
@@ -192,8 +208,7 @@ public class Main2 extends Application implements Runnable {
 
 	@Override
 	public void run() {
-//		System.out.println(this.toString());
-//		System.out.println(this.executor.toString());
+		//		System.out.println(this.executor.toString());
 		drawrecursive(startX, startY, length, prev_angle);
 
 	}
