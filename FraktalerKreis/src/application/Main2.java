@@ -168,9 +168,7 @@ public class Main2 extends Application implements Runnable {
 				temp.setEndX((modifier3.get()*startX*Math.cos(this_angle)-modifier4.get()*startY*Math.sin(this_angle)));
 				temp.setEndY((modifier5.get()*startX*Math.sin(this_angle)+modifier6.get()*startY*Math.cos(this_angle)));
 				temp.setStrokeWidth(length/50);
-				//					root.getChildren().add(temp);
 				Platform.runLater(new RunLater(temp));
-				//					drawrecursive(temp.getEndX(), temp.getEndY(), length*modifier.get(), this_angle);
 				Main2 rekursiv = new Main2(executor,temp.getEndX(), temp.getEndY(), length*modifier.get(), this_angle);
 				executor.execute(rekursiv);
 			}
@@ -187,6 +185,7 @@ public class Main2 extends Application implements Runnable {
 	static private DoubleProperty modifier4 = new SimpleDoubleProperty();
 	static private DoubleProperty modifier5 = new SimpleDoubleProperty();
 	static private DoubleProperty modifier6 = new SimpleDoubleProperty();
+	static private IntegerProperty estimate = new SimpleIntegerProperty();
 	static int count = 0;
 
 	public void addListenerToSlider(BorderPane root, Slider sl) {
@@ -195,11 +194,23 @@ public class Main2 extends Application implements Runnable {
 			public void changed(ObservableValue<? extends Number> ov,Number old_val, Number new_val) {
 				root.getChildren().clear();	// Löschen des vorherigen Kreises
 				Main2 rekursiv = new Main2(executor,0, 400, 400, 0);
+				estimateLines();
 				executor.execute(rekursiv);
 				count = 0;
 			}
 
 		});
+	}
+	
+	public void estimateLines() {
+		int estimate2 = 1;
+		double len = 400;
+		while(len > 10) 
+		{
+			estimate2 *= branches.get();
+			len = len * modifier.get();
+		}
+		estimate.set(estimate2);
 	}
 
 	public static void main(String[] args) {
