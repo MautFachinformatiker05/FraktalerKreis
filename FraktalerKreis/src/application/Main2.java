@@ -128,6 +128,7 @@ public class Main2 extends Application implements Runnable {
 			addListenerToSlider(root, modifier4_slider);
 			addListenerToSlider(root, modifier5_slider);
 			addListenerToSlider(root, modifier6_slider);
+			addListenerToProgressBar(root, progress);
 
 			newWindow.show();
 			executor = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
@@ -184,8 +185,8 @@ public class Main2 extends Application implements Runnable {
 	static private DoubleProperty modifier4 = new SimpleDoubleProperty();
 	static private DoubleProperty modifier5 = new SimpleDoubleProperty();
 	static private DoubleProperty modifier6 = new SimpleDoubleProperty();
-	static int estimate = 0;
-	static private IntegerProperty count = new SimpleIntegerProperty();
+	static double estimate = 0;
+	static IntegerProperty count = new SimpleIntegerProperty();
 
 	public void addListenerToSlider(BorderPane root, Slider sl) {
 		sl.valueProperty().addListener(new ChangeListener<Number>() {
@@ -201,15 +202,27 @@ public class Main2 extends Application implements Runnable {
 		});
 	}
 	
+	public void addListenerToProgressBar(BorderPane root, ProgressBar progress) {
+		count.addListener(new ChangeListener<Number>() {
+
+			public void changed(ObservableValue<? extends Number> ov,Number old_val, Number new_val) {
+				
+				progress.setProgress(count.get()/estimate);
+			}
+
+		});
+	}
+	
 	public void estimateLines() {
-		int estimate2 = 1;
-		double len = 400;
-		while(len > 10) 
+		int estimate2 = branches.get();
+		double len = 400* modifier.get();
+		while(len >= 10) 
 		{
+			estimate2++;
 			estimate2 *= branches.get();
 			len = len * modifier.get();
 		}
-		estimate = (estimate2*2)-1;
+		estimate = ++estimate2;
 	}
 
 	public static void main(String[] args) {
@@ -219,6 +232,5 @@ public class Main2 extends Application implements Runnable {
 	@Override
 	public void run() {
 		drawrecursive(startX, startY, length, prev_angle);
-		count.add(1);
 	}
 }
