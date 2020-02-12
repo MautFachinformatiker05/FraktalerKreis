@@ -1,5 +1,6 @@
 package application;
 
+import java.util.ArrayList;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadPoolExecutor;
@@ -33,6 +34,8 @@ public class Main2 extends Application implements Runnable {
 	double startY;
 	double length;
 	double prev_angle;
+	static ArrayList<Line> line_array = new ArrayList<Line>();
+	static boolean anhalten = false;
 
 	public Main2() {
 		executor = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
@@ -144,7 +147,10 @@ public class Main2 extends Application implements Runnable {
 	private void drawrecursive(double startX, double startY, double length,double prev_angle) {
 
 		if (length<10)
+		{
+			Platform.runLater(new RunLater());
 			return;
+		}
 		else
 		{				
 			for(int i=2; i<=branches.get()+1;i++)
@@ -168,7 +174,16 @@ public class Main2 extends Application implements Runnable {
 				temp.setEndX((modifier3.get()*startX*Math.cos(this_angle)-modifier4.get()*startY*Math.sin(this_angle)));
 				temp.setEndY((modifier5.get()*startX*Math.sin(this_angle)+modifier6.get()*startY*Math.cos(this_angle)));
 				temp.setStrokeWidth(length/50);
-				Platform.runLater(new RunLater(temp));
+				while(anhalten)
+				{
+					try {
+						Thread.sleep(50);
+					} catch (InterruptedException e) {
+						e.printStackTrace();
+					}
+				}
+				line_array.add(temp);
+				Platform.runLater(new RunLater());
 				Main2 rekursiv = new Main2(executor,temp.getEndX(), temp.getEndY(), length*modifier.get(), this_angle);
 				executor.execute(rekursiv);
 			}
@@ -222,7 +237,7 @@ public class Main2 extends Application implements Runnable {
 			estimate2 *= branches.get();
 			len = len * modifier.get();
 		}
-		estimate = ++estimate2;
+		estimate = estimate2;				// größere Werte sind komplett falsch!!
 	}
 
 	public static void main(String[] args) {
