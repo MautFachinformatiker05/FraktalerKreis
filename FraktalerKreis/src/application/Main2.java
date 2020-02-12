@@ -176,7 +176,7 @@ public class Main2 extends Application implements Runnable {
 		}
 	}
 
-	static BorderPane root = new BorderPane();
+	static BorderPane root = new BorderPane(); 
 	static private DoubleProperty angle = new SimpleDoubleProperty();
 	static private IntegerProperty branches = new SimpleIntegerProperty();
 	static private DoubleProperty modifier = new SimpleDoubleProperty();
