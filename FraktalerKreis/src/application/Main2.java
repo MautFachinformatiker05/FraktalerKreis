@@ -58,6 +58,7 @@ public class Main2 extends Application implements Runnable {
 			Scene scene = new Scene(root,800,800,false,SceneAntialiasing.BALANCED);
 			scene.getStylesheets().add(getClass().getResource("application.css").toExternalForm());
 			primaryStage.setScene(scene);
+			primaryStage.setTitle("FraktalerKreis");
 			primaryStage.show();
 			root.setTranslateX(400);
 			root.setTranslateY(400);
@@ -66,26 +67,27 @@ public class Main2 extends Application implements Runnable {
 			VBox vbox1 = new VBox(5);
 			Scene scene2 = new Scene(vbox1,300,200);
 			newWindow.setScene(scene2);
+			newWindow.setTitle("Slider für FraktalerKreis");
 			newWindow.setX(primaryStage.getX() + 805);
 			newWindow.setY(primaryStage.getY() + 100);
 			newWindow.setMaxHeight(240);
 
 			primaryStage.setOnCloseRequest(new EventHandler<WindowEvent>() {
-			    @Override
-			    public void handle(WindowEvent t) {
-			        Platform.exit();
-			        System.exit(0);
-			    }
+				@Override
+				public void handle(WindowEvent t) {
+					Platform.exit();
+					System.exit(0);
+				}
 			});
-			
+
 			newWindow.setOnCloseRequest(new EventHandler<WindowEvent>() {
-			    @Override
-			    public void handle(WindowEvent t) {
-			        Platform.exit();
-			        System.exit(0);
-			    }
+				@Override
+				public void handle(WindowEvent t) {
+					Platform.exit();
+					System.exit(0);
+				}
 			});
-			
+
 			angle.set(30);
 			branches.set(2);
 			modifier.set(0.66);
@@ -204,30 +206,32 @@ public class Main2 extends Application implements Runnable {
 	static IntegerProperty count = new SimpleIntegerProperty();
 
 	public void addListenerToSlider(BorderPane root, Slider sl) {
-		sl.valueProperty().addListener(new ChangeListener<Number>() {
+		sl.valueChangingProperty().addListener(new ChangeListener<Boolean>() {
 
-			public void changed(ObservableValue<? extends Number> ov,Number old_val, Number new_val) {
-				root.getChildren().clear();	// Löschen des vorherigen Kreises
-				count.set(0);
-				Main2 rekursiv = new Main2(executor,0, 400, 400, 0);
-				estimateLines();
-				executor.execute(rekursiv);
+			public void changed(ObservableValue<? extends Boolean> observableValue, Boolean wasChanging, Boolean changing) {
+				if(wasChanging) {
+					root.getChildren().clear();
+					count.set(0);
+					Main2 rekursiv = new Main2(executor,0, 400, 400, 0);
+					estimateLines();
+					executor.execute(rekursiv);
+				}
 			}
 
 		});
 	}
-	
+
 	public void addListenerToProgressBar(BorderPane root, ProgressBar progress) {
 		count.addListener(new ChangeListener<Number>() {
 
 			public void changed(ObservableValue<? extends Number> ov,Number old_val, Number new_val) {
-				
+
 				progress.setProgress(count.get()/estimate);
 			}
 
 		});
 	}
-	
+
 	public void estimateLines() {
 		int estimate2 = branches.get();
 		double len = 400* modifier.get();
@@ -237,7 +241,7 @@ public class Main2 extends Application implements Runnable {
 			estimate2 *= branches.get();
 			len = len * modifier.get();
 		}
-		estimate = estimate2;				// größere Werte sind komplett falsch!!
+		estimate = estimate2*0.97;				// größere Werte sind komplett falsch!!
 	}
 
 	public static void main(String[] args) {
