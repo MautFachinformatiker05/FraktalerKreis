@@ -133,7 +133,7 @@ public class Main2 extends Application implements Runnable {
 			executor = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
 			Main2 rekursiv = new Main2(executor,0, 400, 400, 0);
 			executor.execute(rekursiv);
-			count = 0;
+			count.set(0);
 
 		} catch(Exception e) {
 			e.printStackTrace();
@@ -142,7 +142,6 @@ public class Main2 extends Application implements Runnable {
 
 	private void drawrecursive(double startX, double startY, double length,double prev_angle) {
 
-		count++;
 		if (length<10)
 			return;
 		else
@@ -185,18 +184,18 @@ public class Main2 extends Application implements Runnable {
 	static private DoubleProperty modifier4 = new SimpleDoubleProperty();
 	static private DoubleProperty modifier5 = new SimpleDoubleProperty();
 	static private DoubleProperty modifier6 = new SimpleDoubleProperty();
-	static private IntegerProperty estimate = new SimpleIntegerProperty();
-	static int count = 0;
+	static int estimate = 0;
+	static private IntegerProperty count = new SimpleIntegerProperty();
 
 	public void addListenerToSlider(BorderPane root, Slider sl) {
 		sl.valueProperty().addListener(new ChangeListener<Number>() {
 
 			public void changed(ObservableValue<? extends Number> ov,Number old_val, Number new_val) {
 				root.getChildren().clear();	// Löschen des vorherigen Kreises
+				count.set(0);
 				Main2 rekursiv = new Main2(executor,0, 400, 400, 0);
 				estimateLines();
 				executor.execute(rekursiv);
-				count = 0;
 			}
 
 		});
@@ -210,7 +209,7 @@ public class Main2 extends Application implements Runnable {
 			estimate2 *= branches.get();
 			len = len * modifier.get();
 		}
-		estimate.set(estimate2);
+		estimate = (estimate2*2)-1;
 	}
 
 	public static void main(String[] args) {
@@ -219,8 +218,7 @@ public class Main2 extends Application implements Runnable {
 
 	@Override
 	public void run() {
-		//		System.out.println(this.executor.toString());
 		drawrecursive(startX, startY, length, prev_angle);
-
+		count.add(1);
 	}
 }
