@@ -1,5 +1,10 @@
 package application;
 
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -18,13 +23,14 @@ import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
 import javafx.scene.Scene;
 import javafx.scene.SceneAntialiasing;
+import javafx.scene.control.Button;
 import javafx.scene.control.ProgressBar;
 import javafx.scene.control.Slider;
-import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.shape.Line;
 
 
+@SuppressWarnings("serial")
 public class Main2 extends Application implements Runnable {
 
 
@@ -65,12 +71,12 @@ public class Main2 extends Application implements Runnable {
 
 			Stage newWindow = new Stage();	
 			VBox vbox1 = new VBox(5);
-			Scene scene2 = new Scene(vbox1,300,200);
+			Scene scene2 = new Scene(vbox1,300,260);
 			newWindow.setScene(scene2);
 			newWindow.setTitle("Slider für FraktalerKreis");
 			newWindow.setX(primaryStage.getX() + 805);
 			newWindow.setY(primaryStage.getY() + 100);
-			newWindow.setMaxHeight(240);
+			newWindow.setMaxHeight(300);
 
 			primaryStage.setOnCloseRequest(new EventHandler<WindowEvent>() {
 				@Override
@@ -113,8 +119,12 @@ public class Main2 extends Application implements Runnable {
 			Slider modifier6_slider = new Slider(0,2,1);
 			ProgressBar progress = new ProgressBar();
 			progress.setPrefWidth(300);
+			Button serialize = new Button("Serialize");
+			serialize.setPrefWidth(300);
+			Button deserialize = new Button("Deserialize");
+			deserialize.setPrefWidth(300);
 
-			vbox1.getChildren().addAll(angle_slider, branch_slider, modifier_slider, modifier2_slider, modifier3_slider, modifier4_slider, modifier5_slider, modifier6_slider, progress);
+			vbox1.getChildren().addAll(angle_slider, branch_slider, modifier_slider, modifier2_slider, modifier3_slider, modifier4_slider, modifier5_slider, modifier6_slider, progress, serialize, deserialize);
 
 			angle.bind(angle_slider.valueProperty());
 			branches.bind(branch_slider.valueProperty());
@@ -134,6 +144,8 @@ public class Main2 extends Application implements Runnable {
 			addListenerToSlider(root, modifier5_slider);
 			addListenerToSlider(root, modifier6_slider);
 			addListenerToProgressBar(root, progress);
+			addListenerToSerialize(root, serialize);
+			addListenerToDeserialize(root, deserialize);
 
 			newWindow.show();
 			executor = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
@@ -193,7 +205,7 @@ public class Main2 extends Application implements Runnable {
 		}
 	}
 
-	static BorderPane root = new BorderPane(); 
+	static BorderPaneSeria root = new BorderPaneSeria(); 
 	static private DoubleProperty angle = new SimpleDoubleProperty();
 	static private IntegerProperty branches = new SimpleIntegerProperty();
 	static private DoubleProperty modifier = new SimpleDoubleProperty();
@@ -205,7 +217,7 @@ public class Main2 extends Application implements Runnable {
 	static double estimate = 0;
 	static IntegerProperty count = new SimpleIntegerProperty();
 
-	public void addListenerToSlider(BorderPane root, Slider sl) {
+	public void addListenerToSlider(BorderPaneSeria root, Slider sl) {
 		sl.valueChangingProperty().addListener(new ChangeListener<Boolean>() {
 
 			public void changed(ObservableValue<? extends Boolean> observableValue, Boolean wasChanging, Boolean changing) {
@@ -221,7 +233,7 @@ public class Main2 extends Application implements Runnable {
 		});
 	}
 
-	public void addListenerToProgressBar(BorderPane root, ProgressBar progress) {
+	public void addListenerToProgressBar(BorderPaneSeria root, ProgressBar progress) {
 		count.addListener(new ChangeListener<Number>() {
 
 			public void changed(ObservableValue<? extends Number> ov,Number old_val, Number new_val) {
@@ -230,6 +242,51 @@ public class Main2 extends Application implements Runnable {
 			}
 
 		});
+	}
+	
+	public void addListenerToSerialize(BorderPaneSeria root, Button serialize) {
+		serialize.setOnAction(new EventHandler<javafx.event.ActionEvent>() {
+
+			@Override
+			public void handle(javafx.event.ActionEvent event) {
+				FileOutputStream fileOut;
+				ObjectOutputStream output;
+				try {
+					fileOut = new FileOutputStream("./stream");
+					output = new ObjectOutputStream(fileOut);
+					output.writeObject(root);
+					output.close();
+					fileOut.close();
+					System.out.println("Settings Saved");
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+				
+			}
+		});
+			
+	}
+	
+	public void addListenerToDeserialize(BorderPaneSeria root, Button deserialize) {
+		deserialize.setOnAction(new EventHandler<javafx.event.ActionEvent>() {
+
+			@Override
+			public void handle(javafx.event.ActionEvent event) {
+				FileInputStream fileIn;
+				ObjectInputStream input;
+				try {
+					fileIn = new FileInputStream("./stream");
+					input = new ObjectInputStream(fileIn);
+					root = (BorderPaneSeria)input.readObject();
+					input.close();
+					fileIn.close();
+					System.out.println("Settings Loaded");
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+			}
+		});
+			
 	}
 
 	public void estimateLines() {
