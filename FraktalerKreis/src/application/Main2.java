@@ -277,9 +277,10 @@ public class Main2 extends Application implements Runnable {
 				try {
 					fileIn = new FileInputStream("./stream");
 					input = new ObjectInputStream(fileIn);
-					root = (BorderPaneSeria)input.readObject();
+					setRoot((BorderPaneSeria)input.readObject());
 					input.close();
 					fileIn.close();
+					// Screen is not updated
 					System.out.println("Settings Loaded");
 				} catch (Exception e) {
 					e.printStackTrace();
@@ -289,6 +290,11 @@ public class Main2 extends Application implements Runnable {
 			
 	}
 
+	@SuppressWarnings("static-access")
+	public void setRoot(BorderPaneSeria root_new) {
+		this.root = root_new;
+	}
+	
 	public void estimateLines() {
 		int estimate2 = branches.get();
 		double len = 400* modifier.get();
