@@ -274,7 +274,14 @@ public class Main2 extends Application implements Runnable, Serializable {
 				try {
 					fileOut = new FileOutputStream("./stream");
 					output = new ObjectOutputStream(fileOut);
-//					output.writeObject(Main2);		// slider
+					output.writeDouble(angle_slider.getValue());
+					output.writeDouble(branch_slider.getValue());
+					output.writeDouble(modifier_slider.getValue());
+					output.writeDouble(modifier2_slider.getValue());
+					output.writeDouble(modifier3_slider.getValue());
+					output.writeDouble(modifier4_slider.getValue());
+					output.writeDouble(modifier5_slider.getValue());
+					output.writeDouble(modifier6_slider.getValue());
 					output.writeObject(line_array_backup);
 					output.close();
 					fileOut.close();
@@ -302,8 +309,15 @@ public class Main2 extends Application implements Runnable, Serializable {
 					fileIn = new FileInputStream("./stream");
 					input = new ObjectInputStream(fileIn);
 					root.getChildren().clear();
-//					input.readObject(Main2);
-					line_array = ((ArrayList<SerializableLine>) input.readObject());	//?
+					angle_slider.setValue(input.readDouble());
+					branch_slider.setValue(input.readDouble());
+					modifier_slider.setValue(input.readDouble());
+					modifier2_slider.setValue(input.readDouble());
+					modifier3_slider.setValue(input.readDouble());
+					modifier4_slider.setValue(input.readDouble());
+					modifier5_slider.setValue(input.readDouble());
+					modifier6_slider.setValue(input.readDouble());
+					line_array = ((ArrayList<SerializableLine>) input.readObject());
 					root.getChildren().addAll(line_array);
 					input.close();
 					fileIn.close();
@@ -333,6 +347,7 @@ public class Main2 extends Application implements Runnable, Serializable {
 		loading = bool;
 	}
 
+	/*
 	private void writeObject(ObjectOutputStream os) {
 
 		try {
@@ -364,7 +379,8 @@ public class Main2 extends Application implements Runnable, Serializable {
 
 		} catch (Exception e) { e.printStackTrace(); }
 	}
-
+*/
+	
 	public void estimateLines() {
 		int estimate2 = branches.get();
 		double len = 400* modifier.get();
