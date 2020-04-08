@@ -274,6 +274,7 @@ public class Main2 extends Application implements Runnable {
 	public void addListenerToDeserialize(BorderPane root, Button deserialize) {
 		deserialize.setOnAction(new EventHandler<javafx.event.ActionEvent>() {
 
+			@SuppressWarnings("unchecked")
 			@Override
 			public void handle(javafx.event.ActionEvent event) {
 				FileInputStream fileIn;
@@ -286,7 +287,6 @@ public class Main2 extends Application implements Runnable {
 					root.getChildren().addAll(line_array);
 					input.close();
 					fileIn.close();
-					// Screen is not updated ???
 					System.out.println("Settings Loaded");
 					System.out.println(root.getChildrenUnmodifiable());
 				} catch (Exception e) {

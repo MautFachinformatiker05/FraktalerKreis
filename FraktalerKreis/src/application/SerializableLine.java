@@ -20,7 +20,7 @@ public class SerializableLine extends Line implements Serializable{
 	    os.writeDouble(getStartX());
 	    os.writeDouble(getStartY());
 	    os.writeDouble(getEndX());
-	    os.writeDouble(getEndX());
+	    os.writeDouble(getEndY());
 	    os.writeDouble(getStrokeWidth());
 	   } catch (Exception e) { e.printStackTrace(); }
 	  }
