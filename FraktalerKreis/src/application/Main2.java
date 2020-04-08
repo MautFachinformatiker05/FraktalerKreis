@@ -225,6 +225,7 @@ public class Main2 extends Application implements Runnable {
 			public void changed(ObservableValue<? extends Boolean> observableValue, Boolean wasChanging, Boolean changing) {
 				if(wasChanging) {
 					root.getChildren().clear();
+					line_array_backup.clear();
 					count.set(0);
 					Main2 rekursiv = new Main2(executor,0, 400, 400, 0);
 					estimateLines();
@@ -285,7 +286,7 @@ public class Main2 extends Application implements Runnable {
 					root.getChildren().addAll(line_array);
 					input.close();
 					fileIn.close();
-					// Screen is not updated
+					// Screen is not updated ???
 					System.out.println("Settings Loaded");
 					System.out.println(root.getChildrenUnmodifiable());
 				} catch (Exception e) {

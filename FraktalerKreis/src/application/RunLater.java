@@ -9,7 +9,7 @@ public class RunLater implements Runnable{
 
 	@Override
 	public void run() {
-		if ( (Main2.line_array.size() > 5000) || prev_size == Main2.line_array.size())
+		if ( ( (Main2.line_array.size() > 5000) || prev_size == Main2.line_array.size() ) && !Main2.anhalten)
 		{
 			Main2.anhalten = true;
 			try {
@@ -19,7 +19,6 @@ public class RunLater implements Runnable{
 				System.exit(1);
 			}	
 			Main2.count.set(Main2.count.get()+Main2.line_array.size());
-			Main2.line_array_backup.clear();
 			Main2.line_array_backup.addAll(Main2.line_array);
 			Main2.line_array.clear();
 //			System.out.println("Normal:\t"+Main2.line_array);
