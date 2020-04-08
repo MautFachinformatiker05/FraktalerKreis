@@ -4,7 +4,6 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -26,11 +25,10 @@ import javafx.scene.SceneAntialiasing;
 import javafx.scene.control.Button;
 import javafx.scene.control.ProgressBar;
 import javafx.scene.control.Slider;
+import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.VBox;
-import javafx.scene.shape.Line;
 
 
-@SuppressWarnings("serial")
 public class Main2 extends Application implements Runnable {
 
 
@@ -40,7 +38,8 @@ public class Main2 extends Application implements Runnable {
 	double startY;
 	double length;
 	double prev_angle;
-	static ArrayList<Line> line_array = new ArrayList<Line>();
+	static ArrayList<SerializableLine> line_array = new ArrayList<SerializableLine>();
+	static ArrayList<SerializableLine> line_array_backup = new ArrayList<SerializableLine>();
 	static boolean anhalten = false;
 
 	public Main2() {
@@ -158,6 +157,9 @@ public class Main2 extends Application implements Runnable {
 		}
 	}
 
+	/**
+	 * Draws a few lines and causes other Threads to draw even more of them.
+	 */
 	private void drawrecursive(double startX, double startY, double length,double prev_angle) {
 
 		if (length<10)
@@ -182,7 +184,7 @@ public class Main2 extends Application implements Runnable {
 				{
 					this_angle = ((i/2) * angle.get()) + modifier2.get()*prev_angle;
 				}
-				Line temp = new Line(); 
+				SerializableLine temp = new SerializableLine(); 
 				temp.setStartX(startX);
 				temp.setStartY(startY);
 				temp.setEndX((modifier3.get()*startX*Math.cos(this_angle)-modifier4.get()*startY*Math.sin(this_angle)));
@@ -205,7 +207,7 @@ public class Main2 extends Application implements Runnable {
 		}
 	}
 
-	static BorderPaneSeria root = new BorderPaneSeria(); 
+	static BorderPane root = new BorderPane(); 
 	static private DoubleProperty angle = new SimpleDoubleProperty();
 	static private IntegerProperty branches = new SimpleIntegerProperty();
 	static private DoubleProperty modifier = new SimpleDoubleProperty();
@@ -217,7 +219,7 @@ public class Main2 extends Application implements Runnable {
 	static double estimate = 0;
 	static IntegerProperty count = new SimpleIntegerProperty();
 
-	public void addListenerToSlider(BorderPaneSeria root, Slider sl) {
+	public void addListenerToSlider(BorderPane root, Slider sl) {
 		sl.valueChangingProperty().addListener(new ChangeListener<Boolean>() {
 
 			public void changed(ObservableValue<? extends Boolean> observableValue, Boolean wasChanging, Boolean changing) {
@@ -233,7 +235,7 @@ public class Main2 extends Application implements Runnable {
 		});
 	}
 
-	public void addListenerToProgressBar(BorderPaneSeria root, ProgressBar progress) {
+	public void addListenerToProgressBar(BorderPane root, ProgressBar progress) {
 		count.addListener(new ChangeListener<Number>() {
 
 			public void changed(ObservableValue<? extends Number> ov,Number old_val, Number new_val) {
@@ -244,7 +246,7 @@ public class Main2 extends Application implements Runnable {
 		});
 	}
 	
-	public void addListenerToSerialize(BorderPaneSeria root, Button serialize) {
+	public void addListenerToSerialize(BorderPane root, Button serialize) {
 		serialize.setOnAction(new EventHandler<javafx.event.ActionEvent>() {
 
 			@Override
@@ -254,10 +256,11 @@ public class Main2 extends Application implements Runnable {
 				try {
 					fileOut = new FileOutputStream("./stream");
 					output = new ObjectOutputStream(fileOut);
-					output.writeObject(root);
+					output.writeObject(line_array_backup);
 					output.close();
 					fileOut.close();
 					System.out.println("Settings Saved");
+					System.out.println(root.getChildrenUnmodifiable());
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
@@ -267,7 +270,7 @@ public class Main2 extends Application implements Runnable {
 			
 	}
 	
-	public void addListenerToDeserialize(BorderPaneSeria root, Button deserialize) {
+	public void addListenerToDeserialize(BorderPane root, Button deserialize) {
 		deserialize.setOnAction(new EventHandler<javafx.event.ActionEvent>() {
 
 			@Override
@@ -277,22 +280,20 @@ public class Main2 extends Application implements Runnable {
 				try {
 					fileIn = new FileInputStream("./stream");
 					input = new ObjectInputStream(fileIn);
-					setRoot((BorderPaneSeria)input.readObject());
+					root.getChildren().clear();
+					line_array = ((ArrayList<SerializableLine>) input.readObject());	//?
+					root.getChildren().addAll(line_array);
 					input.close();
 					fileIn.close();
 					// Screen is not updated
 					System.out.println("Settings Loaded");
+					System.out.println(root.getChildrenUnmodifiable());
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
 			}
 		});
 			
-	}
-
-	@SuppressWarnings("static-access")
-	public void setRoot(BorderPaneSeria root_new) {
-		this.root = root_new;
 	}
 	
 	public void estimateLines() {
